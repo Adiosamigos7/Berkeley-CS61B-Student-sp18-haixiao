@@ -1,5 +1,5 @@
 public class NBody {
-    public int N, R;
+    private int N, R;
     /*Return a double corresponding to the radius of the universe in that file*/
     public static double readRadius (String filename) {
         /* Start reading in national_salt_production.txt */
@@ -31,17 +31,17 @@ public class NBody {
     public static void main(String[] args) {
         /*Read in planet data*/
         String[] a = new String[3];
-        a[0] = "157788000.0";
+        /**a[0] = "157788000.0";
         a[1] = "25000.0";
         a[2] = "data/planets.txt";
-        double T = Double.parseDouble(a[0]);
+        /**double T = Double.parseDouble(a[0]);
         double dt = Double.parseDouble(a[1]);
-        String filename = a[2];
-        /**
+        String filename = a[2]; */
+
         double T = Double.parseDouble(args[0]);
         double dt = Double.parseDouble(args[1]);
         String filename = args[2];
-         */
+
         double radius = readRadius(filename);
         Planet[] Planets = readPlanets(filename);
         System.out.println(Planets.length);
@@ -61,6 +61,7 @@ public class NBody {
         double time = 0;
         while (time <= T) {
             StdDraw.clear();
+            System.out.println(time);
             StdDraw.picture(0, 0, "images/starfield.jpg", radius * 2, radius * 2);
             double [] xForces = new double[Planets.length];
             double [] yForces = new double[Planets.length];
