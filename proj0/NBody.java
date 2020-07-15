@@ -30,13 +30,13 @@ public class NBody {
     }
     public static void main(String[] args) {
         /*Read in planet data*/
-        String[] a = new String[3];
-        /**a[0] = "157788000.0";
+/*        String[] a = new String[3];
+        a[0] = "50000.0";
         a[1] = "25000.0";
         a[2] = "data/planets.txt";
-        /**double T = Double.parseDouble(a[0]);
+        double T = Double.parseDouble(a[0]);
         double dt = Double.parseDouble(a[1]);
-        String filename = a[2]; */
+        String filename = a[2];*/
 
         double T = Double.parseDouble(args[0]);
         double dt = Double.parseDouble(args[1]);
@@ -44,7 +44,7 @@ public class NBody {
 
         double radius = readRadius(filename);
         Planet[] Planets = readPlanets(filename);
-        System.out.println(Planets.length);
+        /*System.out.println(Planets.length);*/
         /*Start to draw.*/
         StdDraw.enableDoubleBuffering();
         /* Sets up the scale of the canvas to be the universe radius */
@@ -59,9 +59,9 @@ public class NBody {
         }
         /* Draw animation */
         double time = 0;
-        while (time <= T) {
+        while (time < T) {
             StdDraw.clear();
-            System.out.println(time);
+            /*System.out.println(time);*/
             StdDraw.picture(0, 0, "images/starfield.jpg", radius * 2, radius * 2);
             double [] xForces = new double[Planets.length];
             double [] yForces = new double[Planets.length];
@@ -70,7 +70,7 @@ public class NBody {
                 yForces[i] = Planets[i].calcNetForceExertedByY(Planets);
             }
             for (int i = 0; i < Planets.length; i += 1) {
-                Planets[i].update(time, xForces[i], yForces[i]);
+                Planets[i].update(dt, xForces[i], yForces[i]);
             }
             for (int i = 0; i < Planets.length; i += 1) {
                 Planets[i].draw();

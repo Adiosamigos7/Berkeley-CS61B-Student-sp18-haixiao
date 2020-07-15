@@ -24,8 +24,10 @@ public class Planet{
   }
   /*Calculate distance between two Bodies*/
   public double calcDistance(Planet b) {
-    return java.lang.Math.sqrt(java.lang.Math.pow(this.xxPos - b.xxPos, 2) +
-                     java.lang.Math.pow(this.yyPos - b.yyPos, 2));
+    double xsq = (this.xxPos - b.xxPos) * (this.xxPos - b.xxPos);
+    double ysq = (this.yyPos - b.yyPos) * (this.yyPos - b.yyPos);
+    double dist = java.lang.Math.sqrt(xsq + ysq);
+    return dist;
   }
   /*Calculate exerted force*/
   public double calcForceExertedBy(Planet b) {
