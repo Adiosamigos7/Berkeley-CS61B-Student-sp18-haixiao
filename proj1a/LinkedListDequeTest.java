@@ -103,17 +103,29 @@ public class LinkedListDequeTest {
 		System.out.println("Test size");
 		System.out.println(lld1.size());
 		System.out.println();
-		System.out.println("Test get: expected 4");
+		System.out.println("Test get: expected 5");
 		System.out.println(lld1.get(4));
 		System.out.println();
-		System.out.println("Test recursive get: expected 4");
+		System.out.println("Test recursive get: expected 5");
 		System.out.println(lld1.getRecursive(4));
 		lld1.removeFirst();
 		System.out.println();
-		System.out.println("Test recursive get: expected 4");
+		System.out.println("Test recursive get: expected 5");
 		System.out.println(lld1.getRecursive(3));
 
+
 	}
+
+	/** Adds an item, then removes an item, and ensures that dll is empty afterwards. */
+	public static void gradeTest() {
+		LinkedListDeque<Integer> lld1 = new LinkedListDeque<Integer>();
+		lld1.addLast(1);
+		lld1.addLast(2);
+		lld1.addFirst(3);
+		System.out.println("test recursive: expected to get 3");
+		System.out.println(lld1.getRecursive(0));
+	}
+
 
 	public static void main(String[] args) {
 		System.out.println("Running tests.\n");
@@ -122,5 +134,6 @@ public class LinkedListDequeTest {
 		System.out.println();
 		System.out.println("Self Test");
 		selfTest();
+		gradeTest();
 	}
 } 

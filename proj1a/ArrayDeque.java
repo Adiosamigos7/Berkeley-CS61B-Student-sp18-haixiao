@@ -1,12 +1,18 @@
-import java.awt.desktop.SystemEventListener;
-import java.lang.reflect.Array;
 
-public class ArrayDeque<T>{
+/** Class for Array Deque.
+ * @author haixiao */
+
+public class ArrayDeque<T> {
+    /** item array. */
     private T[] items;
+    /** item size variable. */
     private int size;
+    /** first position in the array. */
     private int firstpos;
+    /** last position in the array. */
     private int lastpos;
 
+    /** constructor method. */
     public ArrayDeque() {
         items = (T[]) new Object [8];
         size = 0;
@@ -14,10 +20,11 @@ public class ArrayDeque<T>{
         lastpos = 4;
     }
 
-    /* Adds an item of type T to the front of th deque.*/
+    /** Adds an item of type T to the front of th deque.
+     * @param item generic item to be added.*/
     public void addFirst(T item) {
         if (size == items.length - 1) {
-            resize(size + 10);
+            resize(size * 2);
         }
         if (size != 0) {
             if (firstpos == 0) {
@@ -29,10 +36,11 @@ public class ArrayDeque<T>{
         items[firstpos] = item;
         size++;
     }
-    /* Adds an item of type T to the back of the deque.*/
+    /** Adds an item of type T to the back of the deque.
+     * @param item generic item to be added.*/
     public void addLast(T item) {
         if (size == items.length - 1) {
-            resize(size + 10);
+            resize(size * 2);
         }
         if (size != 0) {
             if (lastpos == items.length - 1) {
@@ -45,7 +53,7 @@ public class ArrayDeque<T>{
         size++;
     }
 
-    /*resize array*/
+    /** resize array. @param capacity for new array capacity. */
     private void resize(int capacity) {
         T[] a = (T[]) new Object[capacity];
         if (lastpos >= firstpos) {
@@ -60,17 +68,18 @@ public class ArrayDeque<T>{
         items = a;
     }
 
-    /* Returns  true if deque is empty, false otherwise.*/
+    /** Returns  true if deque is empty, false otherwise.*/
     public boolean isEmpty() {
         return size == 0;
     }
 
-    /* Returns the number of items in the deque. */
+    /** Returns the number of items in the deque. */
     public int size() {
         return size;
     }
 
-    /*Prints the items in the deque from first to last, separated by a space.*/
+    /** Prints the items in the deque from
+     * first to last, separated by a space.*/
     public void printDeque() {
         if (size > 0) {
             if (firstpos <= lastpos) {
@@ -95,7 +104,8 @@ public class ArrayDeque<T>{
         }
     }
 
-    /*Removes and returns the item at the front of the deque. If no such item exists, returns null.*/
+    /**Removes and returns the item at the front of the deque.
+    * If no such item exists, returns null.*/
     public T removeFirst() {
         if (size == 0) {
             return null;
@@ -116,7 +126,8 @@ public class ArrayDeque<T>{
         }
     }
 
-    /*Removes and returns the item at the back of the deque. If no such item exists, returns null.*/
+    /**Removes and returns the item at the back of the deque.
+     * If no such item exists, returns null.*/
     public T removeLast() {
         if (size == 0) {
             return null;
@@ -137,17 +148,15 @@ public class ArrayDeque<T>{
         }
     }
 
-    /**Gets the item at the given index, where 0 is the front, 1 is the next item, and so forth.
-     * If no such item exists, returns null. Must not alter the deque!  */
+    /**Gets the item at the given index, where 0 is the front,
+     * 1 is the next item, and so forth.
+     * If no such item exists, returns null. Must not alter the deque!
+     * @param index for the desired position. */
     public T get(int index) {
         if (size == 0 || index >= size) {
             return null;
         } else {
-            return items[(index + firstpos - 1) % items.length];
+            return items[(index + firstpos) % items.length];
         }
-    }
-
-    public static void main(String[] args) {
-
     }
 }

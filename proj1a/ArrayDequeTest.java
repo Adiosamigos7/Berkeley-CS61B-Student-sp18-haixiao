@@ -103,9 +103,19 @@ public class ArrayDequeTest {
 		System.out.println("Test size");
 		System.out.println(arrd.size());
 		System.out.println();
-		System.out.println("Test get: expected 4");
+		System.out.println("Test get: expected 5");
 		System.out.println(arrd.get(4));
 
+	}
+
+	/** Adds an item, then removes an item, and ensures that dll is empty afterwards. */
+	public static void gradeTest() {
+		ArrayDeque<Integer> ad1 = new ArrayDeque<>();
+		for (int i = 0; i < 20; i++) {
+			ad1.addLast(i);
+		}
+		System.out.println("test get: expected to get 19");
+		System.out.println(ad1.get(19));
 	}
 
 	public static void main(String[] args) {
@@ -115,5 +125,6 @@ public class ArrayDequeTest {
 		System.out.println();
 		System.out.println("Self Test");
 		selfTest();
+		gradeTest();
 	}
 } 
