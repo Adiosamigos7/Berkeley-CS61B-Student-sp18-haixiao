@@ -1,6 +1,8 @@
-/** Performs some basic linked list tests. */
-public class ArrayDequeTest {
-	
+
+/** Test for Linked List Deque.
+ * @author haixiao */
+
+public class LinkedListDequeTest {
 	/* Utility method for printing out empty checks. */
 	public static boolean checkEmpty(boolean expected, boolean actual) {
 		if (expected != actual) {
@@ -35,27 +37,26 @@ public class ArrayDequeTest {
 	  * && is the "and" operation. */
 	public static void addIsEmptySizeTest() {
 		System.out.println("Running add/isEmpty/Size test.");
-		System.out.println("Make sure to uncomment the lines below (and delete this print statement).");
 
-		ArrayDeque<String> arrd = new ArrayDeque<String>();
+		LinkedListDeque<String> lld1 = new LinkedListDeque<String>();
 
-		boolean passed = checkEmpty(true, arrd.isEmpty());
+		boolean passed = checkEmpty(true, lld1.isEmpty());
 
-		arrd.addFirst("front");
+		lld1.addFirst("front");
 		
 		// The && operator is the same as "and" in Python.
 		// It's a binary operator that returns true if both arguments true, and false otherwise.
-		passed = checkSize(1, arrd.size()) && passed;
-		passed = checkEmpty(false, arrd.isEmpty()) && passed;
+		passed = checkSize(1, lld1.size()) && passed;
+		passed = checkEmpty(false, lld1.isEmpty()) && passed;
 
-		arrd.addLast("middle");
-		passed = checkSize(2, arrd.size()) && passed;
+		lld1.addLast("middle");
+		passed = checkSize(2, lld1.size()) && passed;
 
-		arrd.addLast("back");
-		passed = checkSize(3, arrd.size()) && passed;
+		lld1.addLast("back");
+		passed = checkSize(3, lld1.size()) && passed;
 
 		System.out.println("Printing out deque: ");
-		arrd.printDeque();
+		lld1.printDeque();
 
 		printTestStatus(passed);
 
@@ -66,19 +67,18 @@ public class ArrayDequeTest {
 
 		System.out.println("Running add/remove test.");
 
-		System.out.println("Make sure to uncomment the lines below (and delete this print statement).");
 
-		ArrayDeque<Integer> arrd = new ArrayDeque<Integer>();
+		LinkedListDeque<Integer> lld1 = new LinkedListDeque<Integer>();
 		// should be empty 
-		boolean passed = checkEmpty(true, arrd.isEmpty());
+		boolean passed = checkEmpty(true, lld1.isEmpty());
 
-		arrd.addFirst(10);
+		lld1.addFirst(10);
 		// should not be empty 
-		passed = checkEmpty(false, arrd.isEmpty()) && passed;
+		passed = checkEmpty(false, lld1.isEmpty()) && passed;
 
-		arrd.removeFirst();
+		lld1.removeFirst();
 		// should be empty 
-		passed = checkEmpty(true, arrd.isEmpty()) && passed;
+		passed = checkEmpty(true, lld1.isEmpty()) && passed;
 
 		printTestStatus(passed);
 
@@ -86,37 +86,46 @@ public class ArrayDequeTest {
 
 	/** Adds an item, then removes an item, and ensures that dll is empty afterwards. */
 	public static void selfTest() {
-		ArrayDeque<Integer> arrd = new ArrayDeque<Integer>();
-		arrd.addFirst(3);
-		arrd.addLast(4);
-		arrd.addFirst(2);
-		arrd.addFirst(1);
-		arrd.addFirst(0);
-		arrd.addLast(5);
-		arrd.addLast(6);
-		arrd.addLast(7);
-		arrd.removeFirst();
-		arrd.removeLast();
+		LinkedListDeque<Integer> lld1 = new LinkedListDeque<Integer>();
+		lld1.addFirst(3);
+		lld1.addLast(4);
+		lld1.addFirst(2);
+		lld1.addFirst(1);
+		lld1.addFirst(0);
+		lld1.addLast(5);
+		lld1.addLast(6);
+		lld1.addLast(7);
+		lld1.removeFirst();
+		lld1.removeLast();
 		System.out.println("Test print");
-		arrd.printDeque();
+		lld1.printDeque();
 		System.out.println();
 		System.out.println("Test size");
-		System.out.println(arrd.size());
+		System.out.println(lld1.size());
 		System.out.println();
 		System.out.println("Test get: expected 5");
-		System.out.println(arrd.get(4));
+		System.out.println(lld1.get(4));
+		System.out.println();
+		System.out.println("Test recursive get: expected 5");
+		System.out.println(lld1.getRecursive(4));
+		lld1.removeFirst();
+		System.out.println();
+		System.out.println("Test recursive get: expected 5");
+		System.out.println(lld1.getRecursive(3));
+
 
 	}
 
 	/** Adds an item, then removes an item, and ensures that dll is empty afterwards. */
 	public static void gradeTest() {
-		ArrayDeque<Integer> ad1 = new ArrayDeque<>();
-		for (int i = 0; i < 20; i++) {
-			ad1.addLast(i);
-		}
-		System.out.println("test get: expected to get 19");
-		System.out.println(ad1.get(19));
+		LinkedListDeque<Integer> lld1 = new LinkedListDeque<Integer>();
+		lld1.addLast(1);
+		lld1.addLast(2);
+		lld1.addFirst(3);
+		System.out.println("test recursive: expected to get 3");
+		System.out.println(lld1.getRecursive(0));
 	}
+
 
 	public static void main(String[] args) {
 		System.out.println("Running tests.\n");
@@ -127,4 +136,4 @@ public class ArrayDequeTest {
 		selfTest();
 		gradeTest();
 	}
-} 
+}
