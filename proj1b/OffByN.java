@@ -1,6 +1,6 @@
 
 public class OffByN implements CharacterComparator {
-    int n;
+    private int n;
     public OffByN(int n) {
         this.n = n;
     }
