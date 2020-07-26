@@ -28,10 +28,13 @@ public class GuitarString {
         }
         while (!buffer.isFull()) {
             double r = Math.random() - 0.5;
+            for (double s : buffer) {
+                if (r == s) {
+                    continue;
+                }
+            }
             buffer.enqueue(r);
         }
-        // TODO:
-        //       Make sure that your random numbers are different from each other.
     }
 
     /* Advance the simulation one time step by performing one iteration of
@@ -47,7 +50,6 @@ public class GuitarString {
 
     /* Return the double at the front of the buffer. */
     public double sample() {
-        // TODO: Return the correct thing.
         return buffer.peek();
     }
 }
