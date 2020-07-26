@@ -4,7 +4,7 @@ import java.util.Iterator;
 
 public class ArrayRingBuffer<T> extends AbstractBoundedQueue <T>  {
     /* Index for the next dequeue or peek. */
-    private int first;            // index for the next dequeue or peek
+    private int first;
     /* Index for the next enqueue. */
     private int last;
     /* Array for storing the buffer data. */
@@ -34,9 +34,9 @@ public class ArrayRingBuffer<T> extends AbstractBoundedQueue <T>  {
         if (last == capacity - 1) {
             last = 0;
         } else {
-            last ++;
+            last++;
         }
-        this.fillCount ++;
+        this.fillCount++;
     }
 
     /**
