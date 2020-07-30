@@ -299,7 +299,8 @@ public class Game {
             for (int i = 0; i < world.size(); i++) {
                 Leaf l = world.get(i);
                 if (l.leftChild == null && l.rightChild == null) {
-                    if (l.width > maxleafsize || l.height > maxleafsize || RANDOM.nextDouble() > 0.25) {
+                    if (l.width > maxleafsize || l.height > maxleafsize
+                            || RANDOM.nextDouble() > 0.25) {
                         if (l.split()) {
                             world.add(l.leftChild);
                             world.add(l.rightChild);
