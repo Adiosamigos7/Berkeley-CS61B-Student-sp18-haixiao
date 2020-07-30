@@ -19,7 +19,7 @@ public class Game {
     public static final int HEIGHT = 30;
     public static final long SEED = 4;
     public static final TETile[][] tiles = new TETile[WIDTH][HEIGHT];;
-    private static final Random RANDOM = new Random(SEED);
+    private static Random RANDOM;
     /** the method of world generation comes from:
      * @source: https://gamedevelopment.tutsplus.com/tutorials/
      * how-to-use-bsp-trees-to-generate-game-maps--gamedev-12268
@@ -192,67 +192,47 @@ public class Game {
                     if (RANDOM.nextDouble() < 0.5) {
                         h1 = new Rectangle(p2x, p1y, abw, hallwidth);
                         h2 = new Rectangle(p2x, p2y, hallwidth, abh);
-//                        h1 = new Rectangle(r.x + r.width - 1, p1y, l.x - r.x - r.width + 2, hallwidth);
-//                        h2 = new Rectangle(p2x, r.y + r.height - 1, hallwidth, p1y - r.y - r.height + 2);
                     } else {
                         h1 = new Rectangle(p2x, p2y, abw, hallwidth);
                         h2 = new Rectangle(p1x, p2y, hallwidth, abh);
-//                        h1 = new Rectangle(r.x + r.width - 1, p2y, p1x - r.x - r.width + 2, hallwidth);
-//                        h2 = new Rectangle(p1x, p2y - 1, hallwidth, l.y - p2y + 2);
                     }
                 } else if (h > 0) {
                     if (RANDOM.nextDouble() < 0.5) {
                         h1 = new Rectangle(p2x, p2y, abw, hallwidth);
                         h2 = new Rectangle(p1x, p1y, hallwidth, abh);
-//                        h1 = new Rectangle(r.x + r.width - 1, p2y, p1x - r.x - r.width + 2, hallwidth);
-//                        h2 = new Rectangle(p1x, l.y + l.height - 1, hallwidth, p2y - l.y - l.height + 2);
                     } else {
                         h1 = new Rectangle(p2x, p1y, abw, hallwidth);
                         h2 = new Rectangle(p2x, p1y, hallwidth, abh);
-//                        h1 = new Rectangle(p2x - 1, p1y, l.x - p2x + 2, hallwidth);
-//                        h2 = new Rectangle(p2x, p1y - 1, hallwidth, r.y - p1y + 2);
 
                     }
                 } else {
                     h1 = new Rectangle(p2x, p2y, abw, hallwidth);
-//                    h1 = new Rectangle(r.x + r.width - 1, p2y, l.x - r.x - r.width + 2, hallwidth);
                 }
             } else if (w > 0) {
                 if (h < 0) {
                     if (RANDOM.nextDouble() < 0.5) {
                         h1 = new Rectangle(p1x, p2y, abw, hallwidth);
                         h2 = new Rectangle(p1x, p2y, hallwidth, abh);
-//                        h1 = new Rectangle(p1x - 1, p2y, r.x - p1x + 2, hallwidth);
-//                        h2 = new Rectangle(p1x, p2y - 1, hallwidth, l.y - p2y + 2);
                     } else {
                         h1 = new Rectangle(p1x, p1y, abw, hallwidth);
                         h2 = new Rectangle(p2x, p2y, hallwidth, abh);
-//                        h1 = new Rectangle(l.x  + l.width - 1, p1y, p2x - l.x - l.width + 2, hallwidth);
-//                        h2 = new Rectangle(p2x, r.y + r.height - 1, hallwidth, p1y - r.y - r.height + 2);
                     }
                 } else if (h > 0) {
                     if (RANDOM.nextDouble() < 0.5) {
                         h1 = new Rectangle(p1x, p1y, abw, hallwidth);
                         h2 = new Rectangle(p2x, p1y, hallwidth, abh);
-//                        h1 = new Rectangle(l.x + l.width - 1, p1y, p2x - l.x - l.width + 2, hallwidth);
-//                        h2 = new Rectangle(p2x, p1y - 1, hallwidth, r.height - p1y + 2);
                     } else {
                         h1 = new Rectangle(p1x, p2y, abw, hallwidth);
                         h2 = new Rectangle(p1x, p1y, hallwidth, abh);
-//                        h1 = new Rectangle(p1x - 1, p2y, r.x - p1x + 1, hallwidth);
-//                        h2 = new Rectangle(p1x, l.y + l.height - 1, hallwidth, p2y - l.y - l.height + 2);
                     }
                 } else {
                     h1 = new Rectangle(p1x, p1y, abw, hallwidth);
-//                    h1 = new Rectangle(l.x + l.width - 1, p2y, r.x - l.x - l.width + 2, hallwidth);
                 }
             } else {
                 if (h < 0) {
                     h2 = new Rectangle(p2x, p2y, hallwidth, abh);
-//                    h2 = new Rectangle(p2x, p2y + r.height - 1, hallwidth, l.y - r.height - r.y + 2);
                 } else if (h > 0) {
                     h2 = new Rectangle(p1x, p1y, hallwidth, abh);
-//                    h2 = new Rectangle(p2x, p1y + l.height - 1, hallwidth, r.y - l.height - l.y + 2);
                 }
             }
             if (h1 != null) {
@@ -303,8 +283,6 @@ public class Game {
         }
     }
 
-
-
     /**initialize world tiles */
     private void tileInit() {
         for (int i = 0; i < tiles.length; i++) {
@@ -314,7 +292,8 @@ public class Game {
         }
     }
     /** Construct the world frame */
-    public void World() {
+    public TETile[][] World(long seed) {
+        RANDOM = new Random(seed);
         world = new ArrayList<Leaf>();
         /** Create a root of all leafs. */
         Leaf root = new Leaf(0,0, WIDTH, HEIGHT,"root");
@@ -340,32 +319,16 @@ public class Game {
             }
         }
         root.createRooms();
-
-        /** hard fix of hallway boundary conditions. */
-//        fixhallways();
-
+        return tiles;
     }
 
-    /** Hard fix the boundary conditions of hallways. */
-    private void fixhallways() {
-        for(int i = 0; i < tiles.length; i++) {
-            for (int j = 0; j < tiles[0].length; j++) {
-                if (tiles[i][j] == Tileset.FLOWER) {
-                    if (tiles[i-1][j] == Tileset.NOTHING || tiles[i+1][j] == Tileset.NOTHING ||
-                            tiles[i][j+1] == Tileset.NOTHING || tiles[i][j-1] == Tileset.NOTHING) {
-                        tiles[i][j] = Tileset.WALL;
-                    } else {
-                        tiles[i][j] = Tileset.FLOOR;
-                    }
-                }
-            }
-        }
-    }
+
 
     /**
      * Method used for playing a fresh game. The game should start from the main menu.
      */
     public void playWithKeyboard() {
+
     }
 
     /**
@@ -381,45 +344,17 @@ public class Game {
      * @return the 2D TETile[][] representing the state of the world
      */
     public TETile[][] playWithInputString(String input) {
+        TERenderer ter = new TERenderer();
+        ter.initialize(WIDTH, HEIGHT);
+        long seed = Long.parseLong(input.substring(1, input.length() - 2));
         // TODO: Fill out this method to run the game using the input passed in,
         // and return a 2D tile representation of the world that would have been
         // drawn if the same inputs had been given to playWithKeyboard().
 
         TETile[][] finalWorldFrame = null;
-        return finalWorldFrame;
-    }
-    public static void main(String[] args) {
-        TERenderer ter = new TERenderer();
-        ter.initialize(WIDTH, HEIGHT);
-
-
         Game g = new Game();
-        g.World();
-        for (Leaf s : g.world) {
-            s.printleaf();
-        }
-
-        Set<String> checker = new HashSet<String>();
-        for (Leaf s: g.world) {
-            /** Check if any duplicate leafs. */
-            if (checker.add(s.name) == false) {
-                System.out.println("Duplicate Leaf:" + s.name);
-            }
-            /** Check if any leaf is illegal. */
-            if (s.width < g.minleafsize || s.width < g.minleafsize) {
-                System.out.println("Too small Leaf:");
-                s.printleaf();
-            }
-            /** Check if any big leafs without child. */
-            if (s.leftChild == null || s.rightChild == null) {
-                if (s.width > g.minleafsize * 2 || s.height > g.minleafsize * 2) {
-                    System.out.println("too big leafs without child:");
-                    s.printleaf();
-                }
-            }
-        }
-
-        ter.renderFrame(g.tiles);
+        finalWorldFrame = g.World(seed);
+        return finalWorldFrame;
     }
 
 }
