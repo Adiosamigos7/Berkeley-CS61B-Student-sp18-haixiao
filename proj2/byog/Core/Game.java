@@ -1,15 +1,14 @@
 package byog.Core;
 
-import java.awt.Rectangle;
-import java.awt.Point;
+import java.awt.*;
 import java.util.Random;
 import java.util.ArrayList;
 
 
+import byog.TileEngine.TERenderer;
 import byog.TileEngine.TETile;
 import byog.TileEngine.Tileset;
-
-
+import edu.princeton.cs.introcs.StdDraw;
 
 
 public class Game {
@@ -17,7 +16,8 @@ public class Game {
     public static final int WIDTH = 80;
     public static final int HEIGHT = 30;
     public static final long SEED = 4;
-    public static final TETile[][] TILES = new TETile[WIDTH][HEIGHT];;
+    public static final TETile[][] TILES = new TETile[WIDTH][HEIGHT];
+    private int pxpos, pypos, dxpos, dypos;
     private static Random RANDOM;
     /** the method of world generation comes from:
      * @source: https://gamedevelopment.tutsplus.com/tutorials/
@@ -288,7 +288,7 @@ public class Game {
     public TETile[][] world(long seed) {
         RANDOM = new Random(seed);
         world = new ArrayList<Leaf>();
-        Leaf root = new Leaf(0, 0, WIDTH, HEIGHT);
+        Leaf root = new Leaf(0, 0, WIDTH, HEIGHT - 1);
         world.add(root);
         tileInit();
         boolean issplit = true;
@@ -311,16 +311,224 @@ public class Game {
             }
         }
         root.createRooms();
+        boolean player = false, door = false;
+
+        while (!door) {
+            dxpos = RANDOM.nextInt(WIDTH);
+            dypos = RANDOM.nextInt(HEIGHT);
+            boolean wallset = false, floorset = false;
+            if (TILES[dxpos][dypos] == Tileset.WALL) {
+                if (dxpos > 1 && dxpos < WIDTH - 1 && dypos > 1 && dypos < HEIGHT - 1) {
+                    if(TILES[dxpos - 1][dypos] == Tileset.WALL
+                            && TILES[dxpos + 1][dypos] == Tileset.WALL) {
+                        wallset = true;
+                        if(TILES[dxpos][dypos - 1] == Tileset.NOTHING
+                        && TILES[dxpos][dypos + 1] == Tileset.FLOOR) {
+                            floorset = true;
+                        } else if (TILES[dxpos][dypos + 1] == Tileset.NOTHING
+                                && TILES[dxpos][dypos - 1] == Tileset.FLOOR){
+                            floorset = true;
+                        }
+                    } else if (TILES[dxpos][dypos - 1] == Tileset.WALL
+                            && TILES[dxpos][dypos + 1] == Tileset.WALL) {
+                        wallset = true;
+                        if(TILES[dxpos - 1][dypos] == Tileset.NOTHING
+                                && TILES[dxpos + 1][dypos] == Tileset.FLOOR) {
+                            floorset = true;
+                        } else if (TILES[dxpos + 1][dypos] == Tileset.NOTHING
+                                && TILES[dxpos - 1][dypos] == Tileset.FLOOR){
+                            floorset = true;
+                        }
+                    }
+                } else if ((dxpos == 1 || dxpos == WIDTH - 1) && dypos > 1 && dypos < HEIGHT - 1) {
+                    if (TILES[dxpos][dypos - 1] == Tileset.WALL
+                            && TILES[dxpos][dypos + 1] == Tileset.WALL) {
+                        wallset = true;
+                        if (dxpos == 1 && TILES[dxpos + 1][dypos] == Tileset.FLOOR) {
+                            floorset = true;
+                        } else if (dxpos == WIDTH - 1 && TILES[dxpos - 1][dypos] == Tileset.FLOOR) {
+                            floorset = true;
+                        }
+                    }
+                } else if (dxpos > 1 && dxpos < HEIGHT - 1 && (dypos == 1 || dypos == WIDTH - 1)) {
+                    if (TILES[dxpos - 1][dypos] == Tileset.WALL
+                            && TILES[dxpos + 1][dypos] == Tileset.WALL) {
+                        wallset = true;
+                        if (dypos == 1 && TILES[dxpos][dypos + 1] == Tileset.FLOOR) {
+                            floorset = true;
+                        } else if (dypos == WIDTH - 1 && TILES[dxpos][dypos - 1] == Tileset.FLOOR) {
+                            floorset = true;
+                        }
+                    }
+                }
+            }
+            if (wallset && floorset) {
+                TILES[dxpos][dypos] = Tileset.LOCKED_DOOR;
+                door = true;
+            }
+        }
+        while (!player) {
+            pxpos = RANDOM.nextInt(WIDTH);
+            pypos = RANDOM.nextInt(HEIGHT);
+            if (TILES[pxpos][pypos] == Tileset.FLOOR) {
+                TILES[pxpos][pypos] = Tileset.PLAYER;
+                player = true;
+            }
+        }
+
+
         return TILES;
     }
 
+    /** constructor. set up preface. */
+    public Game() {
 
+    }
+    private boolean updatemove(char move) {
+        if (move == 'w') {
+            if (pypos < HEIGHT - 1) {
+                if (TILES[pxpos][pypos + 1] == Tileset.FLOOR) {
+                    TILES[pxpos][pypos + 1] = Tileset.PLAYER;
+                    TILES[pxpos][pypos] = Tileset.FLOOR;
+                    pypos += 1;
+                }
+                if (TILES[pxpos][pypos + 1] == Tileset.LOCKED_DOOR) {
+                    return true;
+                }
+            }
+        } else if (move == 's') {
+            if (pypos > 1) {
+                if (TILES[pxpos][pypos - 1] == Tileset.FLOOR) {
+                    TILES[pxpos][pypos - 1] = Tileset.PLAYER;
+                    TILES[pxpos][pypos] = Tileset.FLOOR;
+                    pypos -= 1;
+                }
+                if (TILES[pxpos][pypos - 1] == Tileset.LOCKED_DOOR) {
+                    return true;
+                }
+            }
+        } else if (move == 'a') {
+            if (pxpos > 1) {
+                if (TILES[pxpos - 1][pypos] == Tileset.FLOOR) {
+                    TILES[pxpos - 1][pypos] = Tileset.PLAYER;
+                    TILES[pxpos][pypos] = Tileset.FLOOR;
+                    pxpos -= 1;
+                }
+                if (TILES[pxpos - 1][pypos] == Tileset.LOCKED_DOOR) {
+                    return true;
+                }
+            }
+        } else if (move == 'd') {
+            if (pxpos < WIDTH - 1) {
+                if (TILES[pxpos + 1][pypos] == Tileset.FLOOR) {
+                    TILES[pxpos + 1][pypos] = Tileset.PLAYER;
+                    TILES[pxpos][pypos] = Tileset.FLOOR;
+                    pxpos += 1;
+                }
+                if (TILES[pxpos + 1][pypos] == Tileset.LOCKED_DOOR) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
+    private void InfoBoard(String status) {
+        //StdDraw.setFont(new Font("Courier", Font.BOLD, 25));
+        StdDraw.setPenColor(Color.WHITE);
+        StdDraw.textLeft(1, HEIGHT - 1, "CONTROL: WASD");
+        StdDraw.text(WIDTH / 2, HEIGHT - 1, status);
+        StdDraw.textRight(WIDTH - 1, HEIGHT - 1, "You're a star!");
+        StdDraw.line(0, HEIGHT - 2, WIDTH, HEIGHT - 2);
+        StdDraw.show();
+    }
+
+    private void startgame(int width, int height){
+        StdDraw.setCanvasSize(width * 16, height * 16);
+        StdDraw.setXscale(0, width);
+        StdDraw.setYscale(0, height);
+        StdDraw.setPenColor(Color.WHITE);
+        StdDraw.clear(Color.BLACK);
+        StdDraw.enableDoubleBuffering();
+        Font font = new Font("Courier", Font.BOLD, 2 * width);
+        StdDraw.setFont(font);
+        StdDraw.text(width / 2, height / 4 * 3, "Maze Escape");
+        font = new Font("Courier", Font.BOLD, 16);
+        StdDraw.setFont(font);
+        StdDraw.text(width / 2, height / 2, "(N) New Game");
+        StdDraw.text(width / 2, height / 2 - 2, "(L) Load Game");
+        StdDraw.text(width / 2, height / 2 - 4, "(Q) Quit Game");
+        StdDraw.show();
+    }
     /**
      * Method used for playing a fresh game. The game should start from the main menu.
      */
     public void playWithKeyboard() {
+        Game g = new Game();
+        long seed;
+        for (int i = 0; i < this.WIDTH; i++) {
+            for (int j = 0; j < this.HEIGHT; j++) {
+                TILES[i][j] = Tileset.NOTHING;
+            }
+        }
+        int width = 40, height = 40;
+        startgame(width, height);
+        TERenderer ter = new TERenderer();
+        while(true) {
+            if(StdDraw.hasNextKeyTyped()) {
+                char ch = StdDraw.nextKeyTyped();
+                if (ch == 'n') {
+                    StdDraw.clear(Color.BLACK);
+                    StdDraw.text(width / 2, height / 2, "Please Enter The Random Seed:");
+                    StdDraw.text(width / 2, height / 2 - 2, "When You Finish, Press 's' to Enter the Game.");
+                    StdDraw.show();
+                    String temp = "";
+                    while(true) {
+                        if(StdDraw.hasNextKeyTyped()) {
+                            char t = StdDraw.nextKeyTyped();
+                            if ("1234567890".indexOf(t) != -1) {
+                                temp += t;
+                                StdDraw.clear(Color.black);
+                                StdDraw.text(width / 2, height / 2,  "Random Seed Entered:");
+                                StdDraw.text(width / 2, height / 2 - 6, "When You Finish, Press 's' to Enter the Game.");
+                                StdDraw.text(width / 2, height / 2- 2, temp);
+                                StdDraw.show();
+                            } else if (t == 's') {
+                                if (temp.length() == 0) {
+                                    StdDraw.clear(Color.BLACK);
+                                    StdDraw.text(width / 2, height / 2, "No Random Seed Entered!");
+                                    StdDraw.text(width / 2, height / 2 - 2, "Please Enter Random Seed:");
+                                    StdDraw.show();
+                                } else {
+                                    seed = Long.parseLong(temp);
+                                    g.world(seed);
+                                    ter.initialize(WIDTH,HEIGHT);
 
+                                    ter.renderFrame(TILES);
+                                    InfoBoard("Playing...");
+                                    boolean win = false;
+                                    while (!win) {
+                                        if (StdDraw.hasNextKeyTyped()) {
+                                            win = g.updatemove(StdDraw.nextKeyTyped());
+
+                                            ter.renderFrame(TILES);
+                                            InfoBoard("Playing...");
+                                            if (win) {
+                                                ter.renderFrame(TILES);
+                                                InfoBoard("You Win!");
+                                            }
+                                        }
+                                    }
+
+                                }
+                            }
+                        }
+                    }
+                } else if (ch == 'q') {
+                    break;
+                }
+            }
+        }
     }
 
     /**
