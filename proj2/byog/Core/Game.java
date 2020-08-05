@@ -1,6 +1,10 @@
 package byog.Core;
 
 import java.awt.*;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.Random;
 import java.util.ArrayList;
 
@@ -11,7 +15,7 @@ import byog.TileEngine.Tileset;
 import edu.princeton.cs.introcs.StdDraw;
 
 
-public class Game {
+public class Game implements Serializable {
     /* Feel free to change the width and height. */
     public static final int WIDTH = 80;
     public static final int HEIGHT = 30;
@@ -19,6 +23,7 @@ public class Game {
     public static final TETile[][] TILES = new TETile[WIDTH][HEIGHT];
     private int pxpos, pypos, dxpos, dypos;
     private static Random RANDOM;
+    private String tileInfo = "";
     /** the method of world generation comes from:
      * @source: https://gamedevelopment.tutsplus.com/tutorials/
      * how-to-use-bsp-trees-to-generate-game-maps--gamedev-12268
@@ -433,12 +438,17 @@ public class Game {
         return false;
     }
 
+    private void upperrightinfo() {
+        StdDraw.setPenColor(Color.BLACK);
+        StdDraw.filledRectangle(WIDTH - 4, HEIGHT -1, 4, 1);
+        StdDraw.setPenColor(Color.WHITE);
+        StdDraw.textRight(WIDTH - 1, HEIGHT - 1, tileInfo);
+    }
     private void InfoBoard(String status) {
-        //StdDraw.setFont(new Font("Courier", Font.BOLD, 25));
+
         StdDraw.setPenColor(Color.WHITE);
         StdDraw.textLeft(1, HEIGHT - 1, "CONTROL: WASD");
         StdDraw.text(WIDTH / 2, HEIGHT - 1, status);
-        StdDraw.textRight(WIDTH - 1, HEIGHT - 1, "You're a star!");
         StdDraw.line(0, HEIGHT - 2, WIDTH, HEIGHT - 2);
         StdDraw.show();
     }
@@ -460,6 +470,38 @@ public class Game {
         StdDraw.text(width / 2, height / 2 - 4, "(Q) Quit Game");
         StdDraw.show();
     }
+
+    /** track mouse movement. */
+    private void mousetrack() {
+        int mousex = (int) StdDraw.mouseX();
+        int mousey = (int) StdDraw.mouseY();
+        if (mousex >= 0 && mousex <= WIDTH - 1 && mousey >= 0 && mousey <= HEIGHT - 1) {
+            char character = TILES[mousex][mousey].character();
+            if (character == '#') {
+                tileInfo = "Wall";
+            } else if (character == '@') {
+                tileInfo = "Player";
+            } else if (character == '█') {
+                tileInfo = "LOCKED_DOOR";
+            } else if (character == '·') {
+                tileInfo = "Floor";
+            } else if (character == ' ') {
+                tileInfo = " ";
+            }
+        }
+    }
+
+
+    /** Serialization to save game progress. */
+    public void saveprogress() throws IOException {
+        FileOutputStream fileStream = new FileOutputStream("gameprogress.txt");
+        ObjectOutputStream objectStream = new ObjectOutputStream(fileStream);
+        objectStream.writeObject(this);
+        objectStream.flush();
+        objectStream.close();
+    }
+
+
     /**
      * Method used for playing a fresh game. The game should start from the main menu.
      */
@@ -503,19 +545,45 @@ public class Game {
                                     seed = Long.parseLong(temp);
                                     g.world(seed);
                                     ter.initialize(WIDTH,HEIGHT);
-
                                     ter.renderFrame(TILES);
                                     InfoBoard("Playing...");
+                                    StdDraw.show();
                                     boolean win = false;
+                                    boolean isQuit  = false;
                                     while (!win) {
-                                        if (StdDraw.hasNextKeyTyped()) {
-                                            win = g.updatemove(StdDraw.nextKeyTyped());
-
-                                            ter.renderFrame(TILES);
-                                            InfoBoard("Playing...");
-                                            if (win) {
+                                        mousetrack();
+                                        upperrightinfo();
+                                        StdDraw.show();
+                                        outer: if(!isQuit) {
+                                            if (StdDraw.hasNextKeyTyped()) {
+                                                char x = StdDraw.nextKeyTyped();
+                                                if (x == ':') {
+                                                    isQuit = true;
+                                                    System.out.println("test1 success" + isQuit);
+                                                    break outer;
+                                                }
+                                                System.out.println("in moving");
+                                                win = g.updatemove(x);
                                                 ter.renderFrame(TILES);
-                                                InfoBoard("You Win!");
+                                                InfoBoard("Playing...");
+                                                if (win) {
+                                                    ter.renderFrame(TILES);
+                                                    InfoBoard("You Win!");
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                        if (StdDraw.hasNextKeyTyped()) {
+                                            if (StdDraw.nextKeyTyped() == 'q') {
+                                                System.out.println("Test3 Success!");
+                                                try {
+                                                    saveprogress();
+                                                } catch (IOException e) {
+                                                    System.out.println("Saving failed - IO exception.");
+                                                    isQuit = false;
+                                                }
+                                            } else {
+                                                isQuit = false;
                                             }
                                         }
                                     }
