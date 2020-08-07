@@ -1,14 +1,12 @@
 package byog.Core;
 
 import java.awt.*;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
+import java.io.*;
 import java.util.Random;
 import java.util.ArrayList;
 
 
+import byog.SaveDemo.World;
 import byog.TileEngine.TERenderer;
 import byog.TileEngine.TETile;
 import byog.TileEngine.Tileset;
@@ -17,10 +15,12 @@ import edu.princeton.cs.introcs.StdDraw;
 
 public class Game implements Serializable {
     /* Feel free to change the width and height. */
+    private boolean isfromLoaded = false;
     public static final int WIDTH = 80;
     public static final int HEIGHT = 30;
-    public static final long SEED = 4;
-    public static final TETile[][] TILES = new TETile[WIDTH][HEIGHT];
+    private long SEED;
+    transient public final TETile[][] TILES = new TETile[WIDTH][HEIGHT];
+    public final char[][] tilechars = new char[WIDTH][HEIGHT];
     private int pxpos, pypos, dxpos, dypos;
     private static Random RANDOM;
     private String tileInfo = "";
@@ -29,7 +29,7 @@ public class Game implements Serializable {
      * how-to-use-bsp-trees-to-generate-game-maps--gamedev-12268
      * Which implements binary space partitioning.
      */
-    private ArrayList<Leaf> world;
+    transient ArrayList<Leaf> world;
     /** maximum leaf size. */
     private final int maxleafsize = 20;
     /** minimum leaf size */
@@ -290,8 +290,8 @@ public class Game implements Serializable {
         }
     }
     /** Construct the world frame */
-    public TETile[][] world(long seed) {
-        RANDOM = new Random(seed);
+    public TETile[][] world() {
+        RANDOM = new Random(SEED);
         world = new ArrayList<Leaf>();
         Leaf root = new Leaf(0, 0, WIDTH, HEIGHT - 1);
         world.add(root);
@@ -373,22 +373,55 @@ public class Game implements Serializable {
             }
         }
         while (!player) {
-            pxpos = RANDOM.nextInt(WIDTH);
-            pypos = RANDOM.nextInt(HEIGHT);
-            if (TILES[pxpos][pypos] == Tileset.FLOOR) {
-                TILES[pxpos][pypos] = Tileset.PLAYER;
-                player = true;
+                pxpos = RANDOM.nextInt(WIDTH);
+                pypos = RANDOM.nextInt(HEIGHT);
+                if (TILES[pxpos][pypos] == Tileset.FLOOR) {
+                    TILES[pxpos][pypos] = Tileset.PLAYER;
+                    player = true;
+                }
             }
-        }
-
-
         return TILES;
     }
-
+    /** construct world from loaded game object. */
+    public TETile[][] worldfromloaded(Game g) {
+        this.RANDOM = g.RANDOM;
+        this.SEED = g.SEED;
+        this.dxpos = g.dxpos;
+        this.dypos = g.dypos;
+        this.pxpos = g.pxpos;
+        this.pypos = g.pypos;
+        System.out.println("Loaded Player position: " + g.pxpos + ", " + g.pypos);
+        for (int i = 0; i < WIDTH; i++) {
+            for (int j = 0; j < HEIGHT; j++) {
+                char x = g.tilechars[i][j];
+                TETile tile;
+                if (x == '@') {
+                    tile = Tileset.PLAYER;
+                } else if (x == '#') {
+                    tile = Tileset.WALL;
+                } else if (x == '█') {
+                    tile = Tileset.LOCKED_DOOR;
+                } else if (x == '·') {
+                    tile = Tileset.FLOOR;
+                } else {
+                    tile = Tileset.NOTHING;
+                }
+                this.TILES[i][j] = tile;
+            }
+        }
+        this.pxpos = g.pxpos;
+        this.pypos = g.pypos;
+        this.dxpos = g.dxpos;
+        this.dypos = g.dypos;
+        this.tileInfo = g.tileInfo;
+        return this.TILES;
+    }
     /** constructor. set up preface. */
     public Game() {
-
+        RANDOM = new Random(SEED);
     }
+
+    /** update per player keyboard inputs. */
     private boolean updatemove(char move) {
         if (move == 'w') {
             if (pypos < HEIGHT - 1) {
@@ -437,13 +470,24 @@ public class Game implements Serializable {
         }
         return false;
     }
-
+    /** update the upperright information. */
     private void upperrightinfo() {
         StdDraw.setPenColor(Color.BLACK);
         StdDraw.filledRectangle(WIDTH - 4, HEIGHT -1, 4, 1);
         StdDraw.setPenColor(Color.WHITE);
         StdDraw.textRight(WIDTH - 1, HEIGHT - 1, tileInfo);
+        StdDraw.show();
     }
+
+    /** update the upperright information. */
+    private void uppermidinfo(String midinfo) {
+        StdDraw.setPenColor(Color.BLACK);
+        StdDraw.filledRectangle(WIDTH/2, HEIGHT -1, 8, 1);
+        StdDraw.setPenColor(Color.WHITE);
+        StdDraw.text(WIDTH / 2, HEIGHT - 1, midinfo);
+        StdDraw.show();
+    }
+
     private void InfoBoard(String status) {
 
         StdDraw.setPenColor(Color.WHITE);
@@ -493,33 +537,154 @@ public class Game implements Serializable {
 
 
     /** Serialization to save game progress. */
-    public void saveprogress() throws IOException {
-        FileOutputStream fileStream = new FileOutputStream("gameprogress.txt");
-        ObjectOutputStream objectStream = new ObjectOutputStream(fileStream);
-        objectStream.writeObject(this);
-        objectStream.flush();
-        objectStream.close();
+    public void saveprogress() {
+
+        File f = new File("./world.ser");
+        try {
+            if (!f.exists()) {
+                f.createNewFile();
+            }
+            FileOutputStream fs = new FileOutputStream(f);
+            ObjectOutputStream os = new ObjectOutputStream(fs);
+            for(int i = 0; i < WIDTH; i++) {
+                for (int j = 0; j < HEIGHT; j++) {
+                    tilechars[i][j] = TILES[i][j].character();
+                }
+            }
+            os.writeObject(this);
+            os.close();
+            System.out.println("Save successful");
+        }  catch (FileNotFoundException e) {
+            System.out.println("file not found");
+            System.exit(0);
+        } catch (IOException e) {
+            System.out.println(e);
+            System.exit(0);
+        }
+
     }
 
+    /**Deserialization to load game progress. */
+    public Game loadprogress() {
+        File f = new File("./world.ser");
+        if (f.exists()) {
+            try {
+                FileInputStream fs = new FileInputStream(f);
+                ObjectInputStream os = new ObjectInputStream(fs);
+                Game loadWorld = (Game) os.readObject();
+                os.close();
+                return loadWorld;
+            } catch (FileNotFoundException e) {
+                System.out.println("file not found");
+                System.exit(0);
+            } catch (IOException e) {
+                System.out.println(e);
+                System.exit(0);
+            } catch (ClassNotFoundException e) {
+                System.out.println("class not found");
+                System.exit(0);
+            }
+        }
+        return null;
+    }
+
+    /** game section - for play with keyboard. */
+    public void gamesection(Game oldg, TERenderer ter) {
+        if (oldg == null) {
+            world();
+        } else {
+            worldfromloaded(oldg);
+        }
+        ter.initialize(WIDTH,HEIGHT);
+        ter.renderFrame(TILES);
+        InfoBoard("Playing...");
+        StdDraw.show();
+        boolean win = false;
+        boolean isQuit  = false;
+        while (!win) {
+            mousetrack();
+            upperrightinfo();
+            outer: if(!isQuit) {
+                if (StdDraw.hasNextKeyTyped()) {
+                    char x = StdDraw.nextKeyTyped();
+                    if (x == ':') {
+                        isQuit = true;
+                        break outer;
+                    }
+                    win = updatemove(x);
+                    ter.renderFrame(TILES);
+                    InfoBoard("Playing...");
+                    if (win) {
+                        uppermidinfo("You Win!");
+                        StdDraw.pause(2000);
+                        System.exit(0);
+                    }
+                }
+            }
+            if (StdDraw.hasNextKeyTyped()) {
+                char x  = StdDraw.nextKeyTyped();
+                if (x == 'q' || x == 'Q') {
+                    isfromLoaded = true;
+                    saveprogress();
+                    uppermidinfo("Game Saved!");
+                    StdDraw.pause(2000);
+                    System.exit(0);
+                } else {
+                    isQuit = false;
+                }
+            }
+        }
+    }
+
+    /** game section - for play with keyboard. */
+    public TETile[][] gamesection(Game oldg, int charat, String input) {
+        if (oldg == null) {
+            world();
+        } else {
+            worldfromloaded(oldg);
+        }
+        int commandlength = input.length();
+        boolean win = false;
+        boolean isQuit  = false;
+        while (!win && charat < commandlength) {
+            outer:
+            if (!isQuit) {
+                char x = input.charAt(charat);
+                charat += 1;
+                if (x == ':') {
+                    isQuit = true;
+                    break outer;
+                }
+                win = updatemove(x);
+                if (win) {
+                    System.exit(0);
+                }
+            }
+            char nextchar = input.charAt(charat);
+            charat += 1;
+            if (nextchar == 'q' || nextchar == 'Q') {
+                isfromLoaded = true;
+                saveprogress();
+                System.out.println("Game Saved!");
+                break;
+            } else {
+                isQuit = false;
+            }
+        }
+        return TILES;
+    }
 
     /**
      * Method used for playing a fresh game. The game should start from the main menu.
      */
     public void playWithKeyboard() {
-        Game g = new Game();
-        long seed;
-        for (int i = 0; i < this.WIDTH; i++) {
-            for (int j = 0; j < this.HEIGHT; j++) {
-                TILES[i][j] = Tileset.NOTHING;
-            }
-        }
         int width = 40, height = 40;
         startgame(width, height);
         TERenderer ter = new TERenderer();
         while(true) {
             if(StdDraw.hasNextKeyTyped()) {
                 char ch = StdDraw.nextKeyTyped();
-                if (ch == 'n') {
+                if (ch == 'n' || ch == 'N') {
                     StdDraw.clear(Color.BLACK);
                     StdDraw.text(width / 2, height / 2, "Please Enter The Random Seed:");
                     StdDraw.text(width / 2, height / 2 - 2, "When You Finish, Press 's' to Enter the Game.");
@@ -535,65 +700,26 @@ public class Game implements Serializable {
                                 StdDraw.text(width / 2, height / 2 - 6, "When You Finish, Press 's' to Enter the Game.");
                                 StdDraw.text(width / 2, height / 2- 2, temp);
                                 StdDraw.show();
-                            } else if (t == 's') {
+                            }  else if (t == 's') {
                                 if (temp.length() == 0) {
                                     StdDraw.clear(Color.BLACK);
                                     StdDraw.text(width / 2, height / 2, "No Random Seed Entered!");
                                     StdDraw.text(width / 2, height / 2 - 2, "Please Enter Random Seed:");
                                     StdDraw.show();
                                 } else {
-                                    seed = Long.parseLong(temp);
-                                    g.world(seed);
-                                    ter.initialize(WIDTH,HEIGHT);
-                                    ter.renderFrame(TILES);
-                                    InfoBoard("Playing...");
-                                    StdDraw.show();
-                                    boolean win = false;
-                                    boolean isQuit  = false;
-                                    while (!win) {
-                                        mousetrack();
-                                        upperrightinfo();
-                                        StdDraw.show();
-                                        outer: if(!isQuit) {
-                                            if (StdDraw.hasNextKeyTyped()) {
-                                                char x = StdDraw.nextKeyTyped();
-                                                if (x == ':') {
-                                                    isQuit = true;
-                                                    System.out.println("test1 success" + isQuit);
-                                                    break outer;
-                                                }
-                                                System.out.println("in moving");
-                                                win = g.updatemove(x);
-                                                ter.renderFrame(TILES);
-                                                InfoBoard("Playing...");
-                                                if (win) {
-                                                    ter.renderFrame(TILES);
-                                                    InfoBoard("You Win!");
-                                                    break;
-                                                }
-                                            }
-                                        }
-                                        if (StdDraw.hasNextKeyTyped()) {
-                                            if (StdDraw.nextKeyTyped() == 'q') {
-                                                System.out.println("Test3 Success!");
-                                                try {
-                                                    saveprogress();
-                                                } catch (IOException e) {
-                                                    System.out.println("Saving failed - IO exception.");
-                                                    isQuit = false;
-                                                }
-                                            } else {
-                                                isQuit = false;
-                                            }
-                                        }
-                                    }
-
+                                    this.SEED = Long.parseLong(temp);
+                                    gamesection(null, ter);
                                 }
                             }
                         }
+
                     }
-                } else if (ch == 'q') {
-                    break;
+                } else if (ch == 'l' || ch == 'L') {
+                    System.out.println("Loading...");
+                    Game g = loadprogress();
+                    gamesection(g, ter);
+                } else if (ch == 'q' || ch == 'Q') {
+                    System.exit(0);
                 }
             }
         }
@@ -612,10 +738,45 @@ public class Game implements Serializable {
      * @return the 2D TETile[][] representing the state of the world
      */
     public TETile[][] playWithInputString(String input) {
-        long seed = Long.parseLong(input.substring(1, input.length() - 2));
-        TETile[][] finalWorldFrame = null;
-        Game g = new Game();
-        finalWorldFrame = g.world(seed);
+        String seeder;
+        TETile[][] finalWorldFrame = new TETile[WIDTH][HEIGHT];
+        if(input == null || input.length() == 0) {
+            System.out.println("No String Input Entered.");
+            System.exit(0);
+        }
+        int charat = 0;
+        int commandlength = input.length();
+        bigloop: while (charat < commandlength) {
+            char ch = input.charAt(charat);
+            charat += 1;
+            if (ch == 'n' || ch == 'N') {
+                String temp = "";
+                while(charat < commandlength) {
+                    char t = input.charAt(charat);
+                    charat += 1;
+                    if ("1234567890".indexOf(t) != -1) {
+                        temp += t;
+                    } else if (t == 's' || t == 'S') {
+                        if (temp.length() == 0) {
+                            System.out.println("No random seed entered. Quiting...");
+                            System.exit(0);
+                        } else {
+                            this.SEED = Long.parseLong(temp);
+                            finalWorldFrame = gamesection(null, charat, input);
+                            break bigloop;
+                        }
+                    }
+                }
+            } else if (ch == 'l' || ch == 'L') {
+                System.out.println("Loading...");
+                Game oldg = loadprogress();
+                finalWorldFrame = gamesection(oldg, charat, input);
+                break bigloop;
+            } else if (ch == 'q' || ch == 'Q') {
+                System.exit(0);
+            }
+        }
+
         return finalWorldFrame;
     }
 
