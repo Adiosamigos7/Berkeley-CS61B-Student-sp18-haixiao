@@ -1,12 +1,20 @@
 package byog.Core;
 
-import java.awt.*;
-import java.io.*;
+import java.awt.Rectangle;
+import java.awt.Point;
+import java.awt.Color;
+import java.awt.Font;
+import java.io.Serializable;
+import java.io.File;
+import java.io.IOException;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
+import java.io.ObjectInputStream;
+import java.io.FileNotFoundException;
 import java.util.Random;
 import java.util.ArrayList;
 
-
-import byog.SaveDemo.World;
 import byog.TileEngine.TERenderer;
 import byog.TileEngine.TETile;
 import byog.TileEngine.Tileset;
@@ -16,11 +24,11 @@ import edu.princeton.cs.introcs.StdDraw;
 public class Game implements Serializable {
     /* Feel free to change the width and height. */
     private boolean isfromLoaded = false;
-    public static final int WIDTH = 80;
-    public static final int HEIGHT = 30;
+    public static int WIDTH = 80;
+    public static int HEIGHT = 30;
     private long SEED;
-    transient public final TETile[][] TILES = new TETile[WIDTH][HEIGHT];
-    public final char[][] tilechars = new char[WIDTH][HEIGHT];
+    transient private final TETile[][] TILES = new TETile[WIDTH][HEIGHT];
+    private final char[][] tilechars = new char[WIDTH][HEIGHT];
     private int pxpos, pypos, dxpos, dypos;
     private static Random RANDOM;
     private String tileInfo = "";
@@ -323,25 +331,26 @@ public class Game implements Serializable {
             dypos = RANDOM.nextInt(HEIGHT);
             boolean wallset = false, floorset = false;
             if (TILES[dxpos][dypos] == Tileset.WALL) {
-                if (dxpos > 1 && dxpos < WIDTH - 1 && dypos > 1 && dypos < HEIGHT - 1) {
-                    if(TILES[dxpos - 1][dypos] == Tileset.WALL
+                if (dxpos > 1 && dxpos < WIDTH - 1
+                        && dypos > 1 && dypos < HEIGHT - 1) {
+                    if (TILES[dxpos - 1][dypos] == Tileset.WALL
                             && TILES[dxpos + 1][dypos] == Tileset.WALL) {
                         wallset = true;
-                        if(TILES[dxpos][dypos - 1] == Tileset.NOTHING
+                        if (TILES[dxpos][dypos - 1] == Tileset.NOTHING
                         && TILES[dxpos][dypos + 1] == Tileset.FLOOR) {
                             floorset = true;
                         } else if (TILES[dxpos][dypos + 1] == Tileset.NOTHING
-                                && TILES[dxpos][dypos - 1] == Tileset.FLOOR){
+                                && TILES[dxpos][dypos - 1] == Tileset.FLOOR) {
                             floorset = true;
                         }
                     } else if (TILES[dxpos][dypos - 1] == Tileset.WALL
                             && TILES[dxpos][dypos + 1] == Tileset.WALL) {
                         wallset = true;
-                        if(TILES[dxpos - 1][dypos] == Tileset.NOTHING
+                        if (TILES[dxpos - 1][dypos] == Tileset.NOTHING
                                 && TILES[dxpos + 1][dypos] == Tileset.FLOOR) {
                             floorset = true;
                         } else if (TILES[dxpos + 1][dypos] == Tileset.NOTHING
-                                && TILES[dxpos - 1][dypos] == Tileset.FLOOR){
+                                && TILES[dxpos - 1][dypos] == Tileset.FLOOR) {
                             floorset = true;
                         }
                     }
@@ -373,13 +382,13 @@ public class Game implements Serializable {
             }
         }
         while (!player) {
-                pxpos = RANDOM.nextInt(WIDTH);
-                pypos = RANDOM.nextInt(HEIGHT);
-                if (TILES[pxpos][pypos] == Tileset.FLOOR) {
-                    TILES[pxpos][pypos] = Tileset.PLAYER;
-                    player = true;
-                }
+            pxpos = RANDOM.nextInt(WIDTH);
+            pypos = RANDOM.nextInt(HEIGHT);
+            if (TILES[pxpos][pypos] == Tileset.FLOOR) {
+                TILES[pxpos][pypos] = Tileset.PLAYER;
+                player = true;
             }
+        }
         return TILES;
     }
     /** construct world from loaded game object. */
@@ -473,7 +482,7 @@ public class Game implements Serializable {
     /** update the upperright information. */
     private void upperrightinfo() {
         StdDraw.setPenColor(Color.BLACK);
-        StdDraw.filledRectangle(WIDTH - 4, HEIGHT -1, 4, 1);
+        StdDraw.filledRectangle(WIDTH - 4, HEIGHT - 1, 4, 1);
         StdDraw.setPenColor(Color.WHITE);
         StdDraw.textRight(WIDTH - 1, HEIGHT - 1, tileInfo);
         StdDraw.show();
@@ -482,14 +491,13 @@ public class Game implements Serializable {
     /** update the upperright information. */
     private void uppermidinfo(String midinfo) {
         StdDraw.setPenColor(Color.BLACK);
-        StdDraw.filledRectangle(WIDTH/2, HEIGHT -1, 8, 1);
+        StdDraw.filledRectangle(WIDTH / 2, HEIGHT - 1, 8, 1);
         StdDraw.setPenColor(Color.WHITE);
         StdDraw.text(WIDTH / 2, HEIGHT - 1, midinfo);
         StdDraw.show();
     }
 
-    private void InfoBoard(String status) {
-
+    private void infoBoard(String status) {
         StdDraw.setPenColor(Color.WHITE);
         StdDraw.textLeft(1, HEIGHT - 1, "CONTROL: WASD");
         StdDraw.text(WIDTH / 2, HEIGHT - 1, status);
@@ -497,7 +505,7 @@ public class Game implements Serializable {
         StdDraw.show();
     }
 
-    private void startgame(int width, int height){
+    private void startgame(int width, int height) {
         StdDraw.setCanvasSize(width * 16, height * 16);
         StdDraw.setXscale(0, width);
         StdDraw.setYscale(0, height);
@@ -538,7 +546,6 @@ public class Game implements Serializable {
 
     /** Serialization to save game progress. */
     public void saveprogress() {
-
         File f = new File("./world.ser");
         try {
             if (!f.exists()) {
@@ -546,7 +553,7 @@ public class Game implements Serializable {
             }
             FileOutputStream fs = new FileOutputStream(f);
             ObjectOutputStream os = new ObjectOutputStream(fs);
-            for(int i = 0; i < WIDTH; i++) {
+            for (int i = 0; i < WIDTH; i++) {
                 for (int j = 0; j < HEIGHT; j++) {
                     tilechars[i][j] = TILES[i][j].character();
                 }
@@ -595,16 +602,16 @@ public class Game implements Serializable {
         } else {
             worldfromloaded(oldg);
         }
-        ter.initialize(WIDTH,HEIGHT);
+        ter.initialize(WIDTH, HEIGHT);
         ter.renderFrame(TILES);
-        InfoBoard("Playing...");
+        infoBoard("Playing...");
         StdDraw.show();
         boolean win = false;
         boolean isQuit  = false;
         while (!win) {
             mousetrack();
             upperrightinfo();
-            outer: if(!isQuit) {
+            outer: if (!isQuit) {
                 if (StdDraw.hasNextKeyTyped()) {
                     char x = StdDraw.nextKeyTyped();
                     if (x == ':') {
@@ -613,7 +620,7 @@ public class Game implements Serializable {
                     }
                     win = updatemove(x);
                     ter.renderFrame(TILES);
-                    InfoBoard("Playing...");
+                    infoBoard("Playing...");
                     if (win) {
                         uppermidinfo("You Win!");
                         StdDraw.pause(2000);
@@ -660,15 +667,17 @@ public class Game implements Serializable {
                     System.exit(0);
                 }
             }
-            char nextchar = input.charAt(charat);
-            charat += 1;
-            if (nextchar == 'q' || nextchar == 'Q') {
-                isfromLoaded = true;
-                saveprogress();
-                System.out.println("Game Saved!");
-                break;
-            } else {
-                isQuit = false;
+            if (charat < commandlength) {
+                char nextchar = input.charAt(charat);
+                charat += 1;
+                if (nextchar == 'q' || nextchar == 'Q') {
+                    isfromLoaded = true;
+                    saveprogress();
+                    System.out.println("Game Saved!");
+                    break;
+                } else {
+                    isQuit = false;
+                }
             }
         }
         return TILES;
@@ -681,30 +690,33 @@ public class Game implements Serializable {
         int width = 40, height = 40;
         startgame(width, height);
         TERenderer ter = new TERenderer();
-        while(true) {
-            if(StdDraw.hasNextKeyTyped()) {
+        while (true) {
+            if (StdDraw.hasNextKeyTyped()) {
                 char ch = StdDraw.nextKeyTyped();
                 if (ch == 'n' || ch == 'N') {
                     StdDraw.clear(Color.BLACK);
                     StdDraw.text(width / 2, height / 2, "Please Enter The Random Seed:");
-                    StdDraw.text(width / 2, height / 2 - 2, "When You Finish, Press 's' to Enter the Game.");
+                    StdDraw.text(width / 2, height / 2 - 2, "When You Finish, " +
+                            "Press 's' to Enter the Game.");
                     StdDraw.show();
                     String temp = "";
-                    while(true) {
-                        if(StdDraw.hasNextKeyTyped()) {
+                    while (true) {
+                        if (StdDraw.hasNextKeyTyped()) {
                             char t = StdDraw.nextKeyTyped();
                             if ("1234567890".indexOf(t) != -1) {
                                 temp += t;
                                 StdDraw.clear(Color.black);
                                 StdDraw.text(width / 2, height / 2,  "Random Seed Entered:");
-                                StdDraw.text(width / 2, height / 2 - 6, "When You Finish, Press 's' to Enter the Game.");
-                                StdDraw.text(width / 2, height / 2- 2, temp);
+                                StdDraw.text(width / 2, height / 2 - 6, "When You Finish, " +
+                                        "Press 's' to Enter the Game.");
+                                StdDraw.text(width / 2, height / 2 - 2, temp);
                                 StdDraw.show();
                             }  else if (t == 's') {
                                 if (temp.length() == 0) {
                                     StdDraw.clear(Color.BLACK);
                                     StdDraw.text(width / 2, height / 2, "No Random Seed Entered!");
-                                    StdDraw.text(width / 2, height / 2 - 2, "Please Enter Random Seed:");
+                                    StdDraw.text(width / 2, height / 2 - 2,
+                                            "Please Enter Random Seed:");
                                     StdDraw.show();
                                 } else {
                                     this.SEED = Long.parseLong(temp);
@@ -740,7 +752,7 @@ public class Game implements Serializable {
     public TETile[][] playWithInputString(String input) {
         String seeder;
         TETile[][] finalWorldFrame = new TETile[WIDTH][HEIGHT];
-        if(input == null || input.length() == 0) {
+        if (input == null || input.length() == 0) {
             System.out.println("No String Input Entered.");
             System.exit(0);
         }
@@ -751,7 +763,7 @@ public class Game implements Serializable {
             charat += 1;
             if (ch == 'n' || ch == 'N') {
                 String temp = "";
-                while(charat < commandlength) {
+                while (charat < commandlength) {
                     char t = input.charAt(charat);
                     charat += 1;
                     if ("1234567890".indexOf(t) != -1) {
