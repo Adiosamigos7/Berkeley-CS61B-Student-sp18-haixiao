@@ -27,7 +27,7 @@ public class Game implements Serializable {
     private static int WIDTH = 80;
     private static int HEIGHT = 30;
     private long SEED;
-    private transient final TETile[][] TILES = new TETile[WIDTH][HEIGHT];
+    private final transient TETile[][] TILES = new TETile[WIDTH][HEIGHT];
     private final char[][] tilechars = new char[WIDTH][HEIGHT];
     private int pxpos, pypos, dxpos, dypos;
     private static Random RANDOM;
@@ -297,35 +297,10 @@ public class Game implements Serializable {
             }
         }
     }
-    /** Construct the world frame */
-    public TETile[][] world() {
-        RANDOM = new Random(SEED);
-        world = new ArrayList<Leaf>();
-        Leaf root = new Leaf(0, 0, WIDTH, HEIGHT - 1);
-        world.add(root);
-        tileInit();
-        boolean issplit = true;
-        /** loop through every leaf in the ArrayList over and over again,
-         * until no more leafs. */
-        while (issplit) {
-            issplit = false;
-            for (int i = 0; i < world.size(); i++) {
-                Leaf l = world.get(i);
-                if (l.leftChild == null && l.rightChild == null) {
-                    if (l.width > maxleafsize || l.height > maxleafsize
-                            || RANDOM.nextDouble() > 0.25) {
-                        if (l.split()) {
-                            world.add(l.leftChild);
-                            world.add(l.rightChild);
-                            issplit = true;
-                        }
-                    }
-                }
-            }
-        }
-        root.createRooms();
-        boolean player = false, door = false;
 
+    /** method to create a door. */
+    private void createdoor() {
+        boolean door = false;
         while (!door) {
             dxpos = RANDOM.nextInt(WIDTH);
             dypos = RANDOM.nextInt(HEIGHT);
@@ -337,7 +312,7 @@ public class Game implements Serializable {
                             && TILES[dxpos + 1][dypos] == Tileset.WALL) {
                         wallset = true;
                         if (TILES[dxpos][dypos - 1] == Tileset.NOTHING
-                            && TILES[dxpos][dypos + 1] == Tileset.FLOOR) {
+                                && TILES[dxpos][dypos + 1] == Tileset.FLOOR) {
                             floorset = true;
                         } else if (TILES[dxpos][dypos + 1] == Tileset.NOTHING
                                 && TILES[dxpos][dypos - 1] == Tileset.FLOOR) {
@@ -381,6 +356,38 @@ public class Game implements Serializable {
                 door = true;
             }
         }
+    }
+
+    /** Construct the world frame */
+    public TETile[][] world() {
+        RANDOM = new Random(SEED);
+        world = new ArrayList<Leaf>();
+        Leaf root = new Leaf(0, 0, WIDTH, HEIGHT - 1);
+        world.add(root);
+        tileInit();
+        boolean issplit = true;
+        /** loop through every leaf in the ArrayList over and over again,
+         * until no more leafs. */
+        while (issplit) {
+            issplit = false;
+            for (int i = 0; i < world.size(); i++) {
+                Leaf l = world.get(i);
+                if (l.leftChild == null && l.rightChild == null) {
+                    if (l.width > maxleafsize || l.height > maxleafsize
+                            || RANDOM.nextDouble() > 0.25) {
+                        if (l.split()) {
+                            world.add(l.leftChild);
+                            world.add(l.rightChild);
+                            issplit = true;
+                        }
+                    }
+                }
+            }
+        }
+        root.createRooms();
+        boolean player = false;
+
+        createdoor();
         while (!player) {
             pxpos = RANDOM.nextInt(WIDTH);
             pypos = RANDOM.nextInt(HEIGHT);
@@ -391,6 +398,7 @@ public class Game implements Serializable {
         }
         return TILES;
     }
+
     /** construct world from loaded game object. */
     public TETile[][] worldfromloaded(Game g) {
         this.RANDOM = g.RANDOM;
@@ -425,6 +433,7 @@ public class Game implements Serializable {
         this.tileInfo = g.tileInfo;
         return this.TILES;
     }
+
     /** constructor. set up preface. */
     public Game() {
         RANDOM = new Random(SEED);
