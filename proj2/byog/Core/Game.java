@@ -546,7 +546,7 @@ public class Game implements Serializable {
 
     /** Serialization to save game progress. */
     public void saveprogress() {
-        File f = new File("./world.ser");
+        File f = new File("progress.txt");
         try {
             if (!f.exists()) {
                 f.createNewFile();
@@ -573,7 +573,7 @@ public class Game implements Serializable {
 
     /**Deserialization to load game progress. */
     public Game loadprogress() {
-        File f = new File("./world.ser");
+        File f = new File("progress.txt");
         if (f.exists()) {
             try {
                 FileInputStream fs = new FileInputStream(f);
@@ -664,7 +664,7 @@ public class Game implements Serializable {
                 }
                 win = updatemove(x);
                 if (win) {
-                    System.exit(0);
+                    break;
                 }
             }
             if (charat < commandlength) {
