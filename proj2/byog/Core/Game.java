@@ -24,10 +24,10 @@ import edu.princeton.cs.introcs.StdDraw;
 public class Game implements Serializable {
     /* Feel free to change the width and height. */
     private boolean isfromLoaded = false;
-    public static int WIDTH = 80;
-    public static int HEIGHT = 30;
+    private static int WIDTH = 80;
+    private static int HEIGHT = 30;
     private long SEED;
-    transient private final TETile[][] TILES = new TETile[WIDTH][HEIGHT];
+    private transient final TETile[][] TILES = new TETile[WIDTH][HEIGHT];
     private final char[][] tilechars = new char[WIDTH][HEIGHT];
     private int pxpos, pypos, dxpos, dypos;
     private static Random RANDOM;
@@ -337,7 +337,7 @@ public class Game implements Serializable {
                             && TILES[dxpos + 1][dypos] == Tileset.WALL) {
                         wallset = true;
                         if (TILES[dxpos][dypos - 1] == Tileset.NOTHING
-                        && TILES[dxpos][dypos + 1] == Tileset.FLOOR) {
+                            && TILES[dxpos][dypos + 1] == Tileset.FLOOR) {
                             floorset = true;
                         } else if (TILES[dxpos][dypos + 1] == Tileset.NOTHING
                                 && TILES[dxpos][dypos - 1] == Tileset.FLOOR) {
@@ -560,6 +560,7 @@ public class Game implements Serializable {
             }
             os.writeObject(this);
             os.close();
+            fs.close();
             System.out.println("Save successful");
         }  catch (FileNotFoundException e) {
             System.out.println("file not found");
@@ -650,6 +651,7 @@ public class Game implements Serializable {
         } else {
             worldfromloaded(oldg);
         }
+
         int commandlength = input.length();
         boolean win = false;
         boolean isQuit  = false;
@@ -669,8 +671,8 @@ public class Game implements Serializable {
             }
             if (charat < commandlength) {
                 char nextchar = input.charAt(charat);
-                charat += 1;
                 if (nextchar == 'q' || nextchar == 'Q') {
+                    charat += 1;
                     isfromLoaded = true;
                     saveprogress();
                     System.out.println("Game Saved!");
@@ -696,8 +698,8 @@ public class Game implements Serializable {
                 if (ch == 'n' || ch == 'N') {
                     StdDraw.clear(Color.BLACK);
                     StdDraw.text(width / 2, height / 2, "Please Enter The Random Seed:");
-                    StdDraw.text(width / 2, height / 2 - 2, "When You Finish, " +
-                            "Press 's' to Enter the Game.");
+                    StdDraw.text(width / 2, height / 2 - 2, "When You Finish, "
+                            + "Press 's' to Enter the Game.");
                     StdDraw.show();
                     String temp = "";
                     while (true) {
@@ -707,8 +709,8 @@ public class Game implements Serializable {
                                 temp += t;
                                 StdDraw.clear(Color.black);
                                 StdDraw.text(width / 2, height / 2,  "Random Seed Entered:");
-                                StdDraw.text(width / 2, height / 2 - 6, "When You Finish, " +
-                                        "Press 's' to Enter the Game.");
+                                StdDraw.text(width / 2, height / 2 - 6, "When You Finish, "
+                                        + "Press 's' to Enter the Game.");
                                 StdDraw.text(width / 2, height / 2 - 2, temp);
                                 StdDraw.show();
                             }  else if (t == 's') {
@@ -785,10 +787,9 @@ public class Game implements Serializable {
                 finalWorldFrame = gamesection(oldg, charat, input);
                 break bigloop;
             } else if (ch == 'q' || ch == 'Q') {
-                System.exit(0);
+                break;
             }
         }
-
         return finalWorldFrame;
     }
 
