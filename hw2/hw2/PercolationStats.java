@@ -9,11 +9,10 @@ public class PercolationStats {
         if (N <= 0 || T <= 0) {
             throw new IllegalArgumentException();
         }
-        PercolationFactory f = new PercolationFactory();
         isPercolate = new double[T];
         for (int i = 0; i < T; i++) {
-            Percolation x = f.make(N);
-            while(!x.percolates()) {
+            Percolation x = pf.make(N);
+            while (!x.percolates()) {
                 int row = StdRandom.uniform(N);
                 int col = StdRandom.uniform(N);
                 x.open(row, col);
