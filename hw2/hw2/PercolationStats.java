@@ -27,12 +27,13 @@ public class PercolationStats {
         return StdStats.stddev(isPercolate);
     }
     public double confidenceLow() {
-        return mean() - 1.96 * stddev() / isPercolate.length;
+        return mean() - 1.96 * stddev() / Math.sqrt(isPercolate.length);
     }
     public double confidenceHigh() {
-        return mean() + 1.96 * stddev() / isPercolate.length;
+        return mean() + 1.96 * stddev() / Math.sqrt(isPercolate.length);
     }
 
+    /*
     public static void main(String[] args) {
         int T = 10;
         int N = 20;
@@ -40,5 +41,5 @@ public class PercolationStats {
         System.out.println("mean: " + t.mean());
         System.out.println("stdevp: " + t.stddev());
         System.out.println("confidence: " + t.confidenceLow() + ", " + t.confidenceHigh());
-    }
+    }*/
 }
