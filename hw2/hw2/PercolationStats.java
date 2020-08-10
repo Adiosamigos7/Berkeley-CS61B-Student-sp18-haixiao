@@ -17,7 +17,7 @@ public class PercolationStats {
                 int col = StdRandom.uniform(N);
                 x.open(row, col);
             }
-            isPercolate[i] = x.numberOfOpenSites() / N / N;
+            isPercolate[i] = (double) x.numberOfOpenSites() / N / N;
         }
     }
     public double mean() {
