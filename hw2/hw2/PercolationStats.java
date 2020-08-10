@@ -17,19 +17,28 @@ public class PercolationStats {
                 int col = StdRandom.uniform(N);
                 x.open(row, col);
             }
-            isPercolate[i] = (double) x.numberOfOpenSites() / N / N;
+            isPercolate[i] = (double) x.numberOfOpenSites() / (double) (N * N);
         }
     }
     public double mean() {
         return StdStats.mean(isPercolate);
     }
     public double stddev() {
-        return StdStats.stddevp(isPercolate);
+        return StdStats.stddev(isPercolate);
     }
     public double confidenceLow() {
-        return mean() + 1.96 * stddev() / isPercolate.length;
+        return mean() - 1.96 * stddev() / isPercolate.length;
     }
     public double confidenceHigh() {
         return mean() + 1.96 * stddev() / isPercolate.length;
+    }
+
+    public static void main(String[] args) {
+        int T = 10;
+        int N = 20;
+        PercolationStats t = new PercolationStats(N, T, new PercolationFactory());
+        System.out.println("mean: " + t.mean());
+        System.out.println("stdevp: " + t.stddev());
+        System.out.println("confidence: " + t.confidenceLow() + ", " + t.confidenceHigh());
     }
 }
