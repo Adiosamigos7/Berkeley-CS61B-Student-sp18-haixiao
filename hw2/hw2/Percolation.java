@@ -20,8 +20,8 @@ public class Percolation {
         isPercolate = false;
         cells = new WeightedQuickUnionUF(N * N + 2);
         cells2 = new WeightedQuickUnionUF(N * N + 1);
-        isopen = new int[N * N + 2];
-        for (int i = 1; i < N * N + 1; i++) {
+        isopen = new int[N * N];
+        for (int i = 0; i < N * N; i++) {
             isopen[i] = 0;
         }
         opennum = 0;
@@ -32,7 +32,10 @@ public class Percolation {
             throw new IndexOutOfBoundsException();
         }
         int celnum = xyTo1D(row, col);
-        isopen[celnum] = 1;
+        if (!isOpen(row, col)) {
+            isopen[celnum - 1] = 1;
+            opennum += 1;
+        }
         if (row > 0) {
             if (isOpen(row - 1, col)) {
                 cells.union(celnum, celnum - dimension);
@@ -58,11 +61,10 @@ public class Percolation {
             cells.union(celnum, celnum + 1);
             cells2.union(celnum, celnum + 1);
         }
-        opennum += 1;
     }
 
     public boolean isOpen(int row, int col) {
-        return isopen[xyTo1D(row, col)] == 1;
+        return isopen[xyTo1D(row, col) - 1] == 1;
     }
     public boolean isFull(int row, int col) {
         int celnum = xyTo1D(row, col);
