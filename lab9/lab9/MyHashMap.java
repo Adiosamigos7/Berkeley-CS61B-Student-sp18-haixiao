@@ -98,6 +98,11 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
     @Override
     public Set<K> keySet() {
         Set<K> keys = new HashSet<K>();
+        for (ArrayMap bucket : buckets) {
+            for (Object key : bucket.keySet()) {
+                keys.add((K) key);
+            }
+        }
         return keys;
     }
 

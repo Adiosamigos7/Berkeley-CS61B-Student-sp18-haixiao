@@ -13,6 +13,8 @@ import java.util.Stack;
  */
 public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
 
+    private V deletedValue;
+
     private class Node {
         /* (K, V) pair stored in this Node. */
         private K key;
@@ -106,7 +108,6 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
         Set<K> keys = new HashSet<K>();
         for (K key : this) {
             keys.add(key);
-            System.out.println(key);
         }
         return keys;
     }
@@ -117,47 +118,40 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
      *  null on failed removal.
      */
     @Override
-    public V remove(K key) {
-        if (key == null) {
-            return null;
-        }
-        Node current = removeHelper(root, key);
-        if (current == null) {
-            return null;
-        }
-        V val = current.value;
-        Node x = current;
-        if (current.left != null) {
-            current = current.left;
-            while (current.right != null) {
-                current = current.right;
-            }
-            x.key = current.key;
-            x.value = current.value;
-            current = null;
-        } else if (current.right != null) {
-            current = current.right;
-            while (current.left != null) {
-                current = current.left;
-            }
-            x.key = current.key;
-            x.value = current.value;
-        }
-        current = null;
+    public V remove (K key) {
+        root = removeHelper(root, key);
+        V val = deletedValue;
+        deletedValue = null;
         return val;
     }
 
     private Node removeHelper(Node current, K key) {
-        while (current != null) {
-            if (key.compareTo(current.key) < 0) {
-                current = current.left;
-            } else if (key.compareTo(current.key) > 0) {
-                current = current.right;
-            } else {
-                return current;
-            }
+        if (current == null) {
+            return current;
         }
-        return null;
+        if (key.compareTo(current.key) < 0) {
+            current.left = removeHelper(current.left, key);
+        } else if (key.compareTo(current.key) > 0) {
+            current.right = removeHelper(current.right, key);
+        } else {
+            if (current.left == null) {
+                return current.right;
+            } else if (current.right == null) {
+                return current.left;
+            }
+            current.key = findNextMinimum(current.right).key;
+            current.value = findNextMinimum(current.right).value;
+            current.right = removeHelper(current.right, current.key);
+        }
+
+        return current;
+    }
+
+    private Node findNextMinimum (Node current) {
+        while (current.left != null) {
+            current = current.left;
+        }
+        return current;
     }
 
     /** Removes the key-value entry for the specified key only if it is
@@ -166,36 +160,10 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
      **/
     @Override
     public V remove(K key, V value) {
-        if (key == null) {
-            return null;
+        if (get(key) == value) {
+            return remove(key);
         }
-        Node current = removeHelper(root, key);
-        if (current == null) {
-            return null;
-        }
-        V val = current.value;
-        if (val != value) {
-            return null;
-        }
-        Node x = current;
-        if (current.left != null) {
-            current = current.left;
-            while (current.right != null) {
-                current = current.right;
-            }
-            x.key = current.key;
-            x.value = current.value;
-            current = null;
-        } else if (current.right != null) {
-            current = current.right;
-            while (current.left != null) {
-                current = current.left;
-            }
-            x.key = current.key;
-            x.value = current.value;
-        }
-        current = null;
-        return val;
+        return null;
     }
 
     @Override
