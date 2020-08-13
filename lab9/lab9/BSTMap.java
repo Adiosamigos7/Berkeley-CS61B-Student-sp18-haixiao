@@ -14,6 +14,7 @@ import java.util.Stack;
 public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
 
     private V deletedValue;
+    private K deletedKey;
 
     private class Node {
         /* (K, V) pair stored in this Node. */
@@ -119,9 +120,11 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
      */
     @Override
     public V remove (K key) {
+        deletedKey = key;
         root = removeHelper(root, key);
         V val = deletedValue;
         deletedValue = null;
+        deletedKey = null;
         return val;
     }
 
@@ -134,6 +137,10 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
         } else if (key.compareTo(current.key) > 0) {
             current.right = removeHelper(current.right, key);
         } else {
+            if (key == deletedKey) {
+                deletedValue = current.value;
+            }
+
             if (current.left == null) {
                 return current.right;
             } else if (current.right == null) {
