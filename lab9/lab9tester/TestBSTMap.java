@@ -64,6 +64,7 @@ public class TestBSTMap {
         assertEquals(2, b.size());
         b.remove("starChild");
         b.remove("KISS");
+        b.remove("KISS");
     }
 
     // assumes put works

@@ -13,9 +13,6 @@ import java.util.Stack;
  */
 public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
 
-    private V deletedValue;
-    private K deletedKey;
-
     private class Node {
         /* (K, V) pair stored in this Node. */
         private K key;
@@ -120,12 +117,13 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
      */
     @Override
     public V remove (K key) {
-        deletedKey = key;
+        V removedValue = get(key);
+        if (removedValue == null) {
+            return null;
+        }
         root = removeHelper(root, key);
-        V val = deletedValue;
-        deletedValue = null;
-        deletedKey = null;
-        return val;
+        size -= 1;
+        return removedValue;
     }
 
     private Node removeHelper(Node current, K key) {
@@ -137,10 +135,6 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
         } else if (key.compareTo(current.key) > 0) {
             current.right = removeHelper(current.right, key);
         } else {
-            if (key == deletedKey) {
-                deletedValue = current.value;
-            }
-
             if (current.left == null) {
                 return current.right;
             } else if (current.right == null) {
@@ -167,10 +161,13 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
      **/
     @Override
     public V remove(K key, V value) {
-        if (get(key) == value) {
-            return remove(key);
+        V removedValue = get(key);
+        if (removedValue == null || removedValue != value) {
+            return null;
         }
-        return null;
+        root = removeHelper(root, key);
+        size -= 1;
+        return removedValue;
     }
 
     @Override
