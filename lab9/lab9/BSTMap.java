@@ -106,14 +106,11 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
         Set<K> keys = new HashSet<K>();
         for (K key : this) {
             keys.add(key);
+            System.out.println(key);
         }
         return keys;
     }
 
-    /** Helper method for Set . */
-    private Set<K> setHelper(Set<K> keys, Node p) {
-        return null;
-    }
 
     /** Removes KEY from the tree if present
      *  returns VALUE removed,
@@ -124,39 +121,44 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
         if (key == null) {
             return null;
         }
-        Node current = root;
+        Node current = removeHelper(root, key);
+        if (current == null) {
+            return null;
+        }
+        V val = current.value;
+        Node x = current;
+        if (current.left != null) {
+            current = current.left;
+            while (current.right != null) {
+                current = current.right;
+            }
+            x.key = current.key;
+            x.value = current.value;
+            current = null;
+        } else if (current.right != null) {
+            current = current.right;
+            while (current.left != null) {
+                current = current.left;
+            }
+            x.key = current.key;
+            x.value = current.value;
+        }
+        current = null;
+        return val;
+    }
+
+    private Node removeHelper(Node current, K key) {
         while (current != null) {
             if (key.compareTo(current.key) < 0) {
                 current = current.left;
             } else if (key.compareTo(current.key) > 0) {
                 current = current.right;
             } else {
-                V val = current.value;
-                Node x = current;
-                if (current.left != null) {
-                    current = current.left;
-                    while (current.right != null) {
-                        current = current.right;
-                    }
-                    x.key = current.key;
-                    x.value = current.value;
-                    current = null;
-                } else if (current.right != null) {
-                    current = current.right;
-                    while (current.left != null) {
-                        current = current.left;
-                    }
-                    x.key = current.key;
-                    x.value = current.value;
-                }
-                current = null;
-                return val;
+                return current;
             }
         }
         return null;
     }
-
-
 
     /** Removes the key-value entry for the specified key only if it is
      *  currently mapped to the specified value.  Returns the VALUE removed,
@@ -164,7 +166,36 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
      **/
     @Override
     public V remove(K key, V value) {
-        throw new UnsupportedOperationException();
+        if (key == null) {
+            return null;
+        }
+        Node current = removeHelper(root, key);
+        if (current == null) {
+            return null;
+        }
+        V val = current.value;
+        if (val != value) {
+            return null;
+        }
+        Node x = current;
+        if (current.left != null) {
+            current = current.left;
+            while (current.right != null) {
+                current = current.right;
+            }
+            x.key = current.key;
+            x.value = current.value;
+            current = null;
+        } else if (current.right != null) {
+            current = current.right;
+            while (current.left != null) {
+                current = current.left;
+            }
+            x.key = current.key;
+            x.value = current.value;
+        }
+        current = null;
+        return val;
     }
 
     @Override
@@ -184,7 +215,7 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
         }
 
         public boolean hasNext() {
-            return nodes.isEmpty();
+            return !nodes.isEmpty();
         }
 
         public K next() {
