@@ -216,9 +216,6 @@ public class ArrayHeap<T> implements ExtrinsicPQ<T> {
 
     /* helper method for change priority function. */
     private void changePriority(T item, double priority, int index) {
-        if (index > size) {
-            return;
-        }
         if (item.equals(contents[index].item())) {
             double oldp = contents[index].priority();
             contents[index] = new Node(item, priority);
@@ -228,8 +225,12 @@ public class ArrayHeap<T> implements ExtrinsicPQ<T> {
                 sink(index);
             }
         } else {
-            changePriority(item, priority, leftIndex(index));
-            changePriority(item, priority, rightIndex(index));
+            if (leftIndex(index) <= size) {
+                changePriority(item, priority, leftIndex(index));
+            }
+            if (rightIndex(index) <= size) {
+                changePriority(item, priority, rightIndex(index));
+            }
         }
     }
 
