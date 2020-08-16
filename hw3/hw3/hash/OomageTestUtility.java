@@ -11,7 +11,7 @@ public class OomageTestUtility {
             int bucketNum = (hash & 0x7FFFFFFF) % M;
             buckets[bucketNum] += 1;
         }
-        for(int bucket : buckets) {
+        for (int bucket : buckets) {
             if ((double) bucket < (double) N / 50 || (double) bucket > (double) N / 2.5) {
                 return false;
             }
