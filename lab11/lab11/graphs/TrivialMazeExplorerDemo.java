@@ -1,5 +1,7 @@
 package lab11.graphs;
 
+import graphs.Maze;
+
 /**
  *  @author Josh Hug
  */
