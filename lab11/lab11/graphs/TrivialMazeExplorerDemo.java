@@ -1,13 +1,11 @@
 package lab11.graphs;
 
-import graphs.Maze;
-
 /**
  *  @author Josh Hug
  */
 public class TrivialMazeExplorerDemo {
     public static void main(String[] args) {
-        Maze maze = new Maze("lab11/graphs/maze.txt");
+        Maze maze = new Maze("lab11/graphs/graphs/graphs/graphs/maze.txt");
         TrivialMazeExplorer tme = new TrivialMazeExplorer(maze);
         tme.solve();
     }

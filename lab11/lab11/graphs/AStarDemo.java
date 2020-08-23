@@ -1,7 +1,4 @@
-package graphs;
-
-import graphs.Maze;
-import graphs.MazeExplorer;
+package lab11.graphs;
 
 /**
  *  @author Josh Hug
@@ -10,7 +7,7 @@ public class AStarDemo {
     /* Runs an A* from (1, 1) to (N, N) on the graph in the config file. */
 
     public static void main(String[] args) {
-        Maze maze = new Maze("graphs/maze.txt");
+        Maze maze = new Maze("lab11/graphs/graphs/graphs/graphs/maze.txt");
 
         int startX = 1;
         int startY = 1;

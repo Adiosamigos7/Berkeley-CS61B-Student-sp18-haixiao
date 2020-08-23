@@ -1,7 +1,4 @@
-package graphs;
-
-import graphs.Maze;
-import graphs.MazeExplorer;
+package lab11.graphs;
 
 /**
  *  @author Josh Hug

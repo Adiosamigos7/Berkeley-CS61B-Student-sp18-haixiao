@@ -1,4 +1,4 @@
-package graphs;
+package lab11.graphs;
 
 import java.util.Observable;
 

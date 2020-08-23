@@ -1,4 +1,4 @@
-package graphs;
+package lab11.graphs;
 import java.util.PriorityQueue;
 import java.util.Queue;
 /**
