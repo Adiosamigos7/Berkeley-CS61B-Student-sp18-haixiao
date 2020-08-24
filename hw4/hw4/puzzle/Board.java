@@ -21,10 +21,6 @@ public class Board implements WorldState {
         prev = null;
     }
 
-    public Board(Board b) {
-
-    }
-
     public int tileAt(int i, int j) {
         if (i < 0 || j < 0 || i >= dimension || j >= dimension) {
             throw new IndexOutOfBoundsException();
@@ -113,7 +109,7 @@ public class Board implements WorldState {
         if (y == this) {
             return true;
         }
-        if (y.getClass() != this.getClass()) {
+        if (y == null || y.getClass() != this.getClass()) {
             return false;
         }
         Board x = (Board) y;
