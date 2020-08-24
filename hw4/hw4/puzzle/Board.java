@@ -3,17 +3,17 @@ package hw4.puzzle;
 import edu.princeton.cs.algs4.Queue;
 
 public class Board implements WorldState {
-    private int N;
+    private int dimension;
     private int[][] board;
     private int moves;
     private Board prev;
     private int BLANK = 0;
 
     public Board(int[][] tiles) {
-        N = tiles.length;
-        board = new int[N][N];
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < N; j++) {
+        dimension = tiles.length;
+        board = new int[dimension][dimension];
+        for (int i = 0; i < dimension; i++) {
+            for (int j = 0; j < dimension; j++) {
                 board[i][j] = tiles[i][j];
             }
         }
@@ -26,14 +26,14 @@ public class Board implements WorldState {
     }
 
     public int tileAt(int i, int j) {
-        if (i < 0 || j < 0 || i >= N || j >= N) {
+        if (i < 0 || j < 0 || i >= dimension || j >= dimension) {
             throw new IndexOutOfBoundsException();
         }
         return board[i][j];
     }
 
     public int size() {
-        return N;
+        return dimension;
     }
 
     /**
@@ -77,9 +77,9 @@ public class Board implements WorldState {
 
     public int hamming() {
         int wrong = 0;
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < N; j++) {
-                if (board[i][j] != i * N + j + 1) {
+        for (int i = 0; i < dimension; i++) {
+            for (int j = 0; j < dimension; j++) {
+                if (board[i][j] != i * dimension + j + 1) {
                     if (!(board[i][j] == BLANK)) {
                         wrong += 1;
                     }
@@ -91,12 +91,12 @@ public class Board implements WorldState {
 
     public int manhattan() {
         int man = 0;
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < N; j++) {
+        for (int i = 0; i < dimension; i++) {
+            for (int j = 0; j < dimension; j++) {
                 int x = board[i][j];
                 if (x != 0) {
-                    man += Math.abs((board[i][j] - 1) / N - i) +
-                            Math.abs((board[i][j] - 1) % N - j);
+                    man += Math.abs((board[i][j] - 1) / dimension - i)
+                            + Math.abs((board[i][j] - 1) % dimension - j);
                 }
             }
         }
@@ -110,7 +110,29 @@ public class Board implements WorldState {
 
     @Override
     public boolean equals(Object y) {
+        if (y == this) {
+            return true;
+        }
+        if (y.getClass() != this.getClass()) {
+            return false;
+        }
+        Board x = (Board) y;
+        if (size() != x.size()) {
+            return false;
+        }
+        for (int i = 0; i < dimension; i++) {
+            for (int j = 0; j < dimension; j++) {
+                if (this.board[i][j] != x.board[i][j]) {
+                    return false;
+                }
+            }
+        }
         return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
     }
 
     /** Returns the string representation of the board. 
@@ -121,7 +143,7 @@ public class Board implements WorldState {
         s.append(N + "\n");
         for (int i = 0; i < N; i++) {
             for (int j = 0; j < N; j++) {
-                s.append(String.format("%2d ", tileAt(i,j)));
+                s.append(String.format("%2d ", tileAt(i, j)));
             }
             s.append("\n");
         }

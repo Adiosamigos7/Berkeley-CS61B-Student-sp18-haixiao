@@ -8,13 +8,13 @@ import edu.princeton.cs.algs4.MinPQ;
 public class Solver {
 
     private int moves;
-    private Stack<WorldState> solution = new Stack<WorldState>() ;
+    private Stack<WorldState> solution = new Stack<WorldState>();
 
-    private class SearchNode implements Comparable<SearchNode>{
-        public SearchNode prev;
-        public int moves;
+    private class SearchNode implements Comparable<SearchNode> {
+        private SearchNode prev;
+        private int moves;
         private WorldState state;
-        public int estDist;
+        private int estDist;
 
         public SearchNode(WorldState s, int m, SearchNode p) {
             state = s;
