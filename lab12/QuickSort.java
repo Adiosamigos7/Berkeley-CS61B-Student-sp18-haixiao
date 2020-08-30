@@ -69,16 +69,17 @@ public class QuickSort {
         if (items.size() <= 1) {
             return items;
         }
-        Item pivot = QuickSort.getRandomItem(items);
+        Queue<Item> items2 = items;
+        Item pivot = QuickSort.getRandomItem(items2);
         Queue<Item> less = new Queue<>();
         Queue<Item> equal = new Queue<>();
         Queue<Item> greater = new Queue<>();
-        QuickSort.partition(items, pivot, less, equal, greater);
+        QuickSort.partition(items2, pivot, less, equal, greater);
         less = QuickSort.quickSort(less);
         greater = QuickSort.quickSort(greater);
-        items = QuickSort.catenate(less, equal);
-        items = QuickSort.catenate(items, greater);
-        return items;
+        items2 = QuickSort.catenate(less, equal);
+        items2 = QuickSort.catenate(items2, greater);
+        return items2;
     }
 
     public static void main(String[] args) {
@@ -86,6 +87,14 @@ public class QuickSort {
         students.enqueue("Alice");
         students.enqueue("Vanessa");
         students.enqueue("Ethan");
+        students.enqueue("Fthan");
+        students.enqueue("Gthan");
+        students.enqueue("Ethan");
+        students.enqueue("Ethan");
+        students.enqueue("Tthan");
+        students.enqueue("Wthan");
+        students.enqueue("QWthan");
+        students.enqueue("EEthan");
         Queue<String> students2 = QuickSort.quickSort(students);
         for (String s : students2) {
             System.out.println(s);
