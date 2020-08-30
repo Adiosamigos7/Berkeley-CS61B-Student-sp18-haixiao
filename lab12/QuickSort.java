@@ -69,7 +69,10 @@ public class QuickSort {
         if (items.size() <= 1) {
             return items;
         }
-        Queue<Item> items2 = items;
+        Queue<Item> items2 = new Queue<>();
+        for (Item i : items) {
+            items2.enqueue(i);
+        }
         Item pivot = QuickSort.getRandomItem(items2);
         Queue<Item> less = new Queue<>();
         Queue<Item> equal = new Queue<>();
