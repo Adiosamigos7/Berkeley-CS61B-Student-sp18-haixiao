@@ -8,9 +8,11 @@ import java.util.Map;
  * not draw the output correctly.
  */
 public class Rasterer {
-
+    private Map<String, Double> params;
+    private double ul
     public Rasterer() {
         // YOUR CODE HERE
+
     }
 
     /**
